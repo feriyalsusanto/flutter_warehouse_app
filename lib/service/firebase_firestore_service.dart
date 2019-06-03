@@ -202,4 +202,18 @@ class FirebaseFirestoreService {
       return success;
     }
   }
+
+  Stream<QuerySnapshot> getStockList({int offset, int limit}) {
+    Stream<QuerySnapshot> snapshots = stockCollection.snapshots();
+
+    if (offset != null) {
+      snapshots = snapshots.skip(offset);
+    }
+
+    if (limit != null) {
+      snapshots = snapshots.take(limit);
+    }
+
+    return snapshots;
+  }
 }
