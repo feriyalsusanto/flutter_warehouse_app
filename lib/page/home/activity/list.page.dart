@@ -157,7 +157,7 @@ class _ActivityListPageState extends State<ActivityListPage>
   showDatePickerDialog(int type) {
     DatePicker.showDatePicker(context,
         showTitleActions: true, currentTime: type == 0 ? _minDate : _maxDate,
-        onConfirm: (DateTime date) {
+        onConfirm: (DateTime date) async {
       DateTime tempDate = type == 0 ? _minDate : _maxDate;
       if (type == 0)
         _minDate = date;
@@ -165,7 +165,18 @@ class _ActivityListPageState extends State<ActivityListPage>
         _maxDate = date;
 
       if (_minDate.isBefore(_maxDate) || _minDate.isAtSameMomentAs(_maxDate)) {
-        setState(() {});
+        List<Activity> filtered = List();
+        DateTime activityDate;
+        for (Activity activity in activities) {
+          activityDate = DateTime.parse(activity.date);
+          if ((activityDate.isAtSameMomentAs(_minDate) ||
+                  activityDate.isAfter(_minDate)) &&
+              (activityDate.isAtSameMomentAs(_maxDate) ||
+                  activityDate.isBefore(_maxDate))) filtered.add(activity);
+        }
+        setState(() {
+          filterActivity = filtered;
+        });
       } else {
         type == 0 ? _minDate = tempDate : _maxDate = tempDate;
         showMessage('Filter tanggal tidak valid');
@@ -214,7 +225,7 @@ class _ActivityListPageState extends State<ActivityListPage>
                   CircularProgressIndicator(),
                   Padding(
                     padding: EdgeInsets.only(left: 16.0),
-                    child: Text("Update Data. . ."),
+                    child: Text("Loading Data. . ."),
                   ),
                 ],
               ),
