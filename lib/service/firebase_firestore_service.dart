@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pina_warehouse/entity/activity_entity.dart';
 import 'package:pina_warehouse/entity/product_entity.dart';
 import 'package:pina_warehouse/entity/stock_entity.dart';
+import 'package:pina_warehouse/entity/supplier_entity.dart';
 
 final CollectionReference productCollection =
     Firestore.instance.collection('product');
@@ -137,6 +138,35 @@ class FirebaseFirestoreService {
     }
 
     return snapshots;
+  }
+
+  Future<bool> createSupplier(Supplier supplier) async {
+    bool success = true;
+
+    if (supplier.id == null)
+      await supplierCollection.add(supplier.toMap()).catchError((e) {
+        print(e.toString());
+        success = false;
+      });
+    else {
+      DocumentReference supplierRef = supplierCollection.document(supplier.id);
+      await supplierRef.updateData(supplier.toMap()).catchError((e) {
+        print(e.toString());
+        success = false;
+      });
+    }
+
+    return success;
+  }
+
+  Future<bool> deleteSupplier(Supplier supplier) async {
+    bool success = true;
+
+    await supplierCollection.document(supplier.id).delete().catchError((error) {
+      success = false;
+    });
+
+    return success;
   }
 
   Future<bool> updateStock(ActivityProduct product,

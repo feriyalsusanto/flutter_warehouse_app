@@ -3,6 +3,7 @@ import 'package:pina_warehouse/service/auth_service.dart';
 
 import 'home/activity/list.page.dart';
 import 'home/product/list.page.dart';
+import 'home/supplier/list.page.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.auth, this.userId, this.onSignedOut})
@@ -21,7 +22,8 @@ class _HomePageState extends State<HomePage> {
 
   List<Widget> _widgets = [
     ProductListPage(),
-    ActivityListPage()
+    ActivityListPage(),
+    SupplierListPage()
   ];
 
   @override
@@ -36,16 +38,6 @@ class _HomePageState extends State<HomePage> {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-//            IconButton(
-//                icon: Icon(
-//                  Icons.home,
-//                  size: 28.0,
-//                ),
-//                disabledColor: Colors.blue,
-//                color: Colors.grey[400],
-//                onPressed: _currentIndex == 0
-//                    ? null
-//                    : () => setState(() => _currentIndex = 0)),
             IconButton(
                 icon: Icon(
                   Icons.view_list,
@@ -66,6 +58,16 @@ class _HomePageState extends State<HomePage> {
                 onPressed: _currentIndex == 1
                     ? null
                     : () => setState(() => _currentIndex = 1)),
+            IconButton(
+                icon: Icon(
+                  Icons.directions_bus,
+                  size: 28.0,
+                ),
+                disabledColor: Colors.blue,
+                color: Colors.grey[400],
+                onPressed: _currentIndex == 2
+                    ? null
+                    : () => setState(() => _currentIndex = 2)),
           ],
         ),
       ),
