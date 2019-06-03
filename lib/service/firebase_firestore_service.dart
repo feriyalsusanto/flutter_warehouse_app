@@ -111,9 +111,14 @@ class FirebaseFirestoreService {
     return success;
   }
 
-  Future<bool> deleteActivity(String id) async {
+  Future<bool> deleteActivity(Activity activity) async {
     bool success = true;
-    await activityCollection.document(id).delete().catchError((error) {
+
+    activity.product.forEach((product) async {
+      await updateStock(product, isDelete: true);
+    });
+
+    await activityCollection.document(activity.id).delete().catchError((error) {
       success = false;
     });
 
@@ -143,6 +148,7 @@ class FirebaseFirestoreService {
       int qty = documentSnapshot.data['product_qty'];
       int dataQty = product.qty;
       int updateQty = 0;
+      print(isDelete);
       if (!isDelete) {
         updateQty = qty + dataQty;
       } else {

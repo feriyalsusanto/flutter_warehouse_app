@@ -271,7 +271,7 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
               FlatButton(
                 onPressed: () async {
                   showLoading("Hapus Data. . .");
-                  bool result = await db.deleteActivity(widget.activity.id);
+                  bool result = await db.deleteActivity(widget.activity);
                   Navigator.pop(context);
                   if (result) {
                     Navigator.pop(context);
