@@ -206,6 +206,22 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
                                   ),
                                 ],
                               ),
+                              trailing: widget.activity != null
+                                  ? Container(
+                                      width: 10.0,
+                                      height: 10.0,
+                                    )
+                                  : IconButton(
+                                      icon: Icon(
+                                        Icons.delete,
+                                      ),
+                                      iconSize: 24.0,
+                                      color: Colors.red,
+                                      onPressed: () {
+                                        setState(() {
+                                          activityProducts.removeAt(index);
+                                        });
+                                      }),
                             );
                           },
                           itemCount: activityProducts.length,
@@ -293,7 +309,18 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
         await Navigator.push(context, MaterialPageRoute(builder: (context) {
       return AddProductPage(products);
     }));
-    activityProducts.add(ActivityProduct.fromMap(result));
+    if (activityProducts.length == 0)
+      activityProducts.add(ActivityProduct.fromMap(result));
+    else {
+      for (int x = 0; x < activityProducts.length; x++) {
+        ActivityProduct product = activityProducts[x];
+        if (product.id == result['product_id']) {
+          int qty = product.qty + int.parse(result['product_qty']);
+          activityProducts[x].qty = qty;
+          break;
+        }
+      }
+    }
   }
 
   String parseDateTime(DateTime dateTime) {
