@@ -120,6 +120,7 @@ class _ProductListPageState extends State<ProductListPage>
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        padding: EdgeInsets.all(8.0),
         child: ListView.builder(
             itemBuilder: (context, index) {
               return showProduct(filterProducts[index]);
@@ -209,9 +210,8 @@ class _ProductListPageState extends State<ProductListPage>
                           ),
                           new Text(
                             'Rp ${product.price}',
-                            // set some style to text
                             style: new TextStyle(
-                                fontSize: ScreenUtil().setSp(14.0),
+                                fontSize: ScreenUtil().setSp(12.0),
                                 color: Colors.grey),
                           ),
                         ],
