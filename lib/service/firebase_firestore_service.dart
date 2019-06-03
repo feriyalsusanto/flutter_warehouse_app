@@ -1,13 +1,24 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pina_warehouse/entity/activity_entity.dart';
 import 'package:pina_warehouse/entity/product_entity.dart';
+import 'package:pina_warehouse/entity/stock_entity.dart';
 
 final CollectionReference productCollection =
     Firestore.instance.collection('product');
 
 final CollectionReference categoryCollection =
     Firestore.instance.collection('category');
+
+final CollectionReference activityCollection =
+    Firestore.instance.collection('activity');
+
+final CollectionReference supplierCollection =
+    Firestore.instance.collection('supplier');
+
+final CollectionReference stockCollection =
+    Firestore.instance.collection('stock');
 
 class FirebaseFirestoreService {
   static final FirebaseFirestoreService _instance =
@@ -48,6 +59,15 @@ class FirebaseFirestoreService {
     return result;
   }
 
+  Future<bool> deleteProduct(String id) async {
+    bool success = true;
+    await productCollection.document(id).delete().catchError((error) {
+      success = false;
+    });
+
+    return success;
+  }
+
   Stream<QuerySnapshot> getCategoryList({int offset, int limit}) {
     Stream<QuerySnapshot> snapshots = categoryCollection.snapshots();
 
@@ -60,5 +80,90 @@ class FirebaseFirestoreService {
     }
 
     return snapshots;
+  }
+
+  Stream<QuerySnapshot> getActivityList({int offset, int limit}) {
+    Stream<QuerySnapshot> snapshots = activityCollection.snapshots();
+
+    if (offset != null) {
+      snapshots = snapshots.skip(offset);
+    }
+
+    if (limit != null) {
+      snapshots = snapshots.take(limit);
+    }
+
+    return snapshots;
+  }
+
+  Future<bool> createActivity(Activity activity) async {
+    bool success = true;
+
+    activity.product.forEach((product) async {
+      await updateStock(product);
+    });
+
+    await activityCollection.add(activity.toMap()).catchError((e) {
+      print(e.toString());
+      success = false;
+    });
+
+    return success;
+  }
+
+  Future<bool> deleteActivity(String id) async {
+    bool success = true;
+    await activityCollection.document(id).delete().catchError((error) {
+      success = false;
+    });
+
+    return success;
+  }
+
+  Stream<QuerySnapshot> getSupplierList({int offset, int limit}) {
+    Stream<QuerySnapshot> snapshots = supplierCollection.snapshots();
+
+    if (offset != null) {
+      snapshots = snapshots.skip(offset);
+    }
+
+    if (limit != null) {
+      snapshots = snapshots.take(limit);
+    }
+
+    return snapshots;
+  }
+
+  Future<bool> updateStock(ActivityProduct product,
+      {bool isDelete = false}) async {
+    DocumentReference documentReference = stockCollection.document(product.id);
+    DocumentSnapshot documentSnapshot = await documentReference.get();
+    if (documentSnapshot.exists) {
+      Map<String, dynamic> stock = documentSnapshot.data;
+      int qty = documentSnapshot.data['product_qty'];
+      int dataQty = product.qty;
+      int updateQty = 0;
+      if (!isDelete) {
+        updateQty = qty + dataQty;
+      } else {
+        updateQty = qty - dataQty;
+      }
+      stock['product_qty'] = updateQty;
+      bool success = true;
+      await documentReference.updateData(stock).catchError((e) {
+        success = false;
+      });
+      return success;
+    } else {
+      Stock stock = Stock(product.id, product.id, product.qty);
+      bool success = true;
+      await stockCollection
+          .document(product.id)
+          .setData(stock.toMap())
+          .catchError((e) {
+        success = false;
+      });
+      return success;
+    }
   }
 }

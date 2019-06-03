@@ -71,7 +71,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    print(categorySelected.toString());
     return Scaffold(
       appBar: AppBar(
         title: Text('Detil Produk'),
@@ -83,10 +82,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 final FormState form = formKey.currentState;
                 if (form.validate()) {
                   form.save();
-                  showLoading();
                   if (widget.product != null) {
+                    showLoading('Update Produk. . .');
                     await updateData();
                   } else {
+                    showLoading('Tambah Produk. . .');
                     await createData();
                   }
                 }
@@ -102,88 +102,111 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       ),
       body: Container(
         padding: EdgeInsets.all(8.0),
-        child: Form(
-            key: formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  Card(
-                    child: DropdownButtonFormField<Category>(
-                      decoration: InputDecoration(
-                          labelText: 'Kategori Produk',
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12.0, vertical: 8.0),
-                          enabled: isEditing,
-                          enabledBorder: UnderlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.transparent))),
-                      items: List.generate(categories.length, (index) {
-                        Category category = categories[index];
-                        return DropdownMenuItem(
-                          value: category,
-                          child: Text(
-                            category.name,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Expanded(
+                child: Form(
+                    key: formKey,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: <Widget>[
+                          Card(
+                            child: DropdownButtonFormField<Category>(
+                              decoration: InputDecoration(
+                                  labelText: 'Kategori Produk',
+                                  contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 12.0, vertical: 8.0),
+                                  enabled: isEditing,
+                                  enabledBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors.transparent))),
+                              items: List.generate(categories.length, (index) {
+                                Category category = categories[index];
+                                return DropdownMenuItem(
+                                  value: category,
+                                  child: Text(
+                                    category.name,
+                                  ),
+                                );
+                              }),
+                              onChanged: (category) => !isEditing
+                                  ? null
+                                  : setState(() => categorySelected = category),
+                              value: categorySelected,
+                              validator: (val) => categorySelected == null
+                                  ? 'Silahkan Pilih Kategori'
+                                  : null,
+                            ),
                           ),
-                        );
-                      }),
-                      onChanged: (category) => !isEditing
-                          ? null
-                          : setState(() => categorySelected = category),
-                      value: categorySelected,
-                      validator: (val) => categorySelected == null
-                          ? 'Silahkan Pilih Kategori'
-                          : null,
+                          Card(
+                            child: TextFormField(
+                              controller: nameController,
+                              enabled: isEditing,
+                              keyboardType: TextInputType.text,
+                              decoration: InputDecoration(
+                                  labelText: 'Nama Produk',
+                                  contentPadding: EdgeInsets.all(12.0),
+                                  enabledBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors.transparent))),
+                              validator: (val) => val.isEmpty
+                                  ? 'Silahkan Isi Nama Produk'
+                                  : null,
+                            ),
+                          ),
+                          Card(
+                            child: TextFormField(
+                              controller: priceController,
+                              enabled: isEditing,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                  labelText: 'Harga Produk',
+                                  contentPadding: EdgeInsets.all(12.0),
+                                  enabledBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors.transparent))),
+                              validator: (val) => val.isEmpty
+                                  ? 'Silahkan Isi Harga Produk'
+                                  : null,
+                            ),
+                          ),
+                          Card(
+                            child: TextFormField(
+                              controller: retailPriceController,
+                              enabled: isEditing,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                  labelText: 'Harga Retail Produk',
+                                  contentPadding: EdgeInsets.all(12.0),
+                                  enabledBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors.transparent))),
+                              validator: (val) => val.isEmpty
+                                  ? 'Silahkan Isi Harga Retail Produk'
+                                  : null,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ))),
+            widget.product != null
+                ? RaisedButton(
+                    onPressed: () async {
+                      showLoading('Hapus Produk');
+                      bool result = await db.deleteProduct(widget.product.id);
+                      Navigator.pop(context);
+                      Navigator.pop(context, result);
+                    },
+                    child: Text(
+                      'Hapus Produk',
+                      style: TextStyle(color: Colors.white),
                     ),
-                  ),
-                  Card(
-                    child: TextFormField(
-                      controller: nameController,
-                      enabled: isEditing,
-                      keyboardType: TextInputType.text,
-                      decoration: InputDecoration(
-                          labelText: 'Nama Produk',
-                          contentPadding: EdgeInsets.all(12.0),
-                          enabledBorder: UnderlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.transparent))),
-                      validator: (val) =>
-                          val.isEmpty ? 'Silahkan Isi Nama Produk' : null,
-                    ),
-                  ),
-                  Card(
-                    child: TextFormField(
-                      controller: priceController,
-                      enabled: isEditing,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                          labelText: 'Harga Produk',
-                          contentPadding: EdgeInsets.all(12.0),
-                          enabledBorder: UnderlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.transparent))),
-                      validator: (val) =>
-                          val.isEmpty ? 'Silahkan Isi Harga Produk' : null,
-                    ),
-                  ),
-                  Card(
-                    child: TextFormField(
-                      controller: retailPriceController,
-                      enabled: isEditing,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                          labelText: 'Harga Retail Produk',
-                          contentPadding: EdgeInsets.all(12.0),
-                          enabledBorder: UnderlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.transparent))),
-                      validator: (val) => val.isEmpty
-                          ? 'Silahkan Isi Harga Retail Produk'
-                          : null,
-                    ),
-                  ),
-                ],
-              ),
-            )),
+                    color: Colors.red,
+                  )
+                : Container()
+          ],
+        ),
       ),
     );
   }
@@ -208,7 +231,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     if (result) Navigator.pop(context, true);
   }
 
-  void showLoading() {
+  void showLoading(String message) {
     showDialog(
         context: context,
         barrierDismissible: false,
@@ -223,7 +246,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   CircularProgressIndicator(),
                   Padding(
                     padding: EdgeInsets.only(left: 16.0),
-                    child: Text("Update Data. . ."),
+                    child: Text(message),
                   ),
                 ],
               ),

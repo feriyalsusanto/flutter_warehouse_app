@@ -1,9 +1,7 @@
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pina_warehouse/service/auth_service.dart';
 
-import 'auth/login_signup.page.dart';
 import 'auth/user_pin.page.dart';
 
 enum AuthStatus {
@@ -39,24 +37,29 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
 
     Future.delayed(Duration(seconds: 2)).then((_) {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-        switch (authStatus) {
-          case AuthStatus.LOGGED_IN:
-            if (_userId.length > 0 && _userId != null) {
-              return UserPinPage(
-                userId: _userId,
-                auth: auth,
-                onSignedOut: _onSignedOut,
-              );
-            }
-            break;
-          case AuthStatus.NOT_DETERMINED:
-          case AuthStatus.NOT_LOGGED_IN:
-            return LoginSignUpPage(
-              auth: auth,
-              onSignedIn: _onLoggedIn,
-            );
-            break;
-        }
+        return UserPinPage(
+          userId: _userId,
+          auth: auth,
+          onSignedOut: _onSignedOut,
+        );
+//        switch (authStatus) {
+//          case AuthStatus.LOGGED_IN:
+//            if (_userId.length > 0 && _userId != null) {
+//              return UserPinPage(
+//                userId: _userId,
+//                auth: auth,
+//                onSignedOut: _onSignedOut,
+//              );
+//            }
+//            break;
+//          case AuthStatus.NOT_DETERMINED:
+//          case AuthStatus.NOT_LOGGED_IN:
+//            return LoginSignUpPage(
+//              auth: auth,
+//              onSignedIn: _onLoggedIn,
+//            );
+//            break;
+//        }
       }));
     });
   }

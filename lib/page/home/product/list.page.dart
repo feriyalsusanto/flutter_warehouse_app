@@ -83,9 +83,6 @@ class _ProductListPageState extends State<ProductListPage>
       setState(() {
         this.products = products;
         filterProducts = products;
-
-        print(products.length);
-        print(filterProducts.length);
       });
     });
 
@@ -267,6 +264,7 @@ class _ProductListPageState extends State<ProductListPage>
   }
 
   onFilteredSubmit() {
+    showLoading();
     List<Product> filters = List();
     setState(() {
       if (selectedCategories.length > 0)
@@ -280,6 +278,8 @@ class _ProductListPageState extends State<ProductListPage>
 
       filterProducts = filters;
     });
+
+    Navigator.pop(context);
   }
 
   void showLoading() {

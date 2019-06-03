@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pina_warehouse/service/auth_service.dart';
 
+import 'home/activity/list.page.dart';
 import 'home/product/list.page.dart';
 
 class HomePage extends StatefulWidget {
@@ -20,8 +21,7 @@ class _HomePageState extends State<HomePage> {
 
   List<Widget> _widgets = [
     ProductListPage(),
-    ProductListPage(),
-    ProductListPage()
+    ActivityListPage()
   ];
 
   @override
@@ -36,9 +36,19 @@ class _HomePageState extends State<HomePage> {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
+//            IconButton(
+//                icon: Icon(
+//                  Icons.home,
+//                  size: 28.0,
+//                ),
+//                disabledColor: Colors.blue,
+//                color: Colors.grey[400],
+//                onPressed: _currentIndex == 0
+//                    ? null
+//                    : () => setState(() => _currentIndex = 0)),
             IconButton(
                 icon: Icon(
-                  Icons.home,
+                  Icons.view_list,
                   size: 28.0,
                 ),
                 disabledColor: Colors.blue,
@@ -48,7 +58,7 @@ class _HomePageState extends State<HomePage> {
                     : () => setState(() => _currentIndex = 0)),
             IconButton(
                 icon: Icon(
-                  Icons.view_list,
+                  Icons.shopping_cart,
                   size: 28.0,
                 ),
                 disabledColor: Colors.blue,
@@ -56,16 +66,6 @@ class _HomePageState extends State<HomePage> {
                 onPressed: _currentIndex == 1
                     ? null
                     : () => setState(() => _currentIndex = 1)),
-            IconButton(
-                icon: Icon(
-                  Icons.shopping_cart,
-                  size: 28.0,
-                ),
-                disabledColor: Colors.blue,
-                color: Colors.grey[400],
-                onPressed: _currentIndex == 2
-                    ? null
-                    : () => setState(() => _currentIndex = 2)),
           ],
         ),
       ),
