@@ -73,6 +73,13 @@ class _HomeReportPageState extends State<HomeReportPage>
   }
 
   @override
+  void dispose() {
+    productSub?.cancel();
+    stockSub?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(

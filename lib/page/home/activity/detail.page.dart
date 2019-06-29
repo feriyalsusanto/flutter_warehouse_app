@@ -11,7 +11,7 @@ import 'package:pina_warehouse/service/firebase_firestore_service.dart';
 import 'addproduct.page.dart';
 
 class ActivityDetailPage extends StatefulWidget {
-  Activity activity;
+  final Activity activity;
 
   ActivityDetailPage({this.activity});
 
@@ -97,7 +97,9 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Detil Barang Masuk'),
+        title: Text(widget.activity != null && widget.activity.isOut
+            ? 'Detil Barang Keluar'
+            : 'Detil Barang Masuk'),
         actions: <Widget>[
           IconButton(
             icon: Icon(isDeletable ? Icons.delete_forever : Icons.check),
@@ -105,156 +107,186 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
               if (isDeletable) {
                 _showDeleteAlertDialog(context);
               } else {
-                _submitActivity();
+                _submitActivity(context);
               }
             },
             iconSize: 24.0,
           )
         ],
       ),
-      body: Container(
-        padding: EdgeInsets.all(8.0),
-        child: Form(
-            key: formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  InkWell(
-                    child: Card(
-                      child: TextFormField(
-                        controller: dateController,
-                        enabled: false,
-                        keyboardType: TextInputType.text,
-                        decoration: InputDecoration(
-                            labelText: 'Tanggal',
-                            contentPadding: EdgeInsets.all(12.0),
-                            enabledBorder: UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Colors.transparent))),
-                        validator: (val) =>
-                            val.isEmpty ? 'Silahkan Pilih Tanggal' : null,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Container(
+            padding: EdgeInsets.all(8.0),
+            child: Form(
+                key: formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: <Widget>[
+                      InkWell(
+                        child: Card(
+                          child: TextFormField(
+                            controller: dateController,
+                            enabled: false,
+                            keyboardType: TextInputType.text,
+                            decoration: InputDecoration(
+                                labelText: 'Tanggal',
+                                contentPadding: EdgeInsets.all(12.0),
+                                enabledBorder: UnderlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Colors.transparent))),
+                            validator: (val) =>
+                                val.isEmpty ? 'Silahkan Pilih Tanggal' : null,
+                          ),
+                        ),
+                        onTap: widget.activity != null
+                            ? null
+                            : () {
+                                DatePicker.showDateTimePicker(context,
+                                    currentTime: _dateTime,
+                                    onConfirm: (dateTime) {
+                                  setState(() {
+                                    _dateTime = dateTime;
+                                    dateController.text =
+                                        parseDateTime(_dateTime);
+                                  });
+                                });
+                              },
                       ),
-                    ),
-                    onTap: () {
-                      DatePicker.showDateTimePicker(context,
-                          currentTime: _dateTime, onConfirm: (dateTime) {
-                        setState(() {
-                          _dateTime = dateTime;
-                          dateController.text = parseDateTime(_dateTime);
-                        });
-                      });
-                    },
-                  ),
-                  Card(
-                    child: DropdownButtonFormField<Supplier>(
-                      decoration: InputDecoration(
-                          labelText: 'Supplier',
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12.0, vertical: 8.0),
-                          enabledBorder: UnderlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.transparent))),
-                      items: List.generate(suppliers.length, (index) {
-                        Supplier supplier = suppliers[index];
-                        return DropdownMenuItem(
-                          value: supplier,
-                          child: Text(
-                            supplier.name,
-                          ),
-                        );
-                      }),
-                      onChanged: (supplier) =>
-                          setState(() => supplierSelected = supplier),
-                      value: supplierSelected,
-                      validator: (val) => supplierSelected == null
-                          ? 'Silahkan Pilih Supplier'
-                          : null,
-                    ),
-                  ),
-                  Card(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        Container(
-                          child: Text(
-                            'Daftar Produk',
-                            style:
-                                TextStyle(fontSize: 13.0, color: Colors.grey),
-                          ),
-                          padding: EdgeInsets.only(
-                              left: 14.0, right: 16.0, top: 16.0),
-                        ),
-                        ListView.builder(
-                          itemBuilder: (BuildContext context, int index) {
-                            ActivityProduct product = activityProducts[index];
-                            int totalPrice = product.price * product.qty;
-                            return ListTile(
-                              contentPadding:
-                                  EdgeInsets.only(left: 14.0, right: 14.0),
-                              title: Text(product.name),
-                              subtitle: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text('${product.qty} x ${product.price}'),
-                                  Text(
-                                    'Rp $totalPrice',
-                                    style: TextStyle(
-                                        color: Colors.blue,
-                                        fontSize: 18.0,
-                                        fontWeight: FontWeight.w600),
+                      widget.activity != null && widget.activity.isOut
+                          ? Container()
+                          : widget.activity == null
+                              ? Card(
+                                  child: DropdownButtonFormField<Supplier>(
+                                    decoration: InputDecoration(
+                                        labelText: 'Supplier',
+                                        contentPadding: EdgeInsets.symmetric(
+                                            horizontal: 12.0, vertical: 8.0),
+                                        enabledBorder: UnderlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.transparent))),
+                                    items: List.generate(suppliers.length,
+                                        (index) {
+                                      Supplier supplier = suppliers[index];
+                                      return DropdownMenuItem(
+                                        value: supplier,
+                                        child: Text(
+                                          supplier.name,
+                                        ),
+                                      );
+                                    }),
+                                    onChanged: (supplier) => setState(
+                                        () => supplierSelected = supplier),
+                                    value: supplierSelected,
+                                    validator: (val) => supplierSelected == null
+                                        ? 'Silahkan Pilih Supplier'
+                                        : null,
                                   ),
-                                ],
+                                )
+                              : Card(
+                                  child: TextFormField(
+                                    controller: TextEditingController(
+                                        text: widget.activity.supplierName),
+                                    enabled: false,
+                                    keyboardType: TextInputType.text,
+                                    decoration: InputDecoration(
+                                        labelText: 'Supplier',
+                                        contentPadding: EdgeInsets.all(12.0),
+                                        enabledBorder: UnderlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.transparent))),
+                                  ),
+                                ),
+                      Card(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            Container(
+                              child: Text(
+                                'Daftar Produk',
+                                style: TextStyle(
+                                    fontSize: 13.0, color: Colors.grey),
                               ),
-                              trailing: widget.activity != null
-                                  ? Container(
-                                      width: 10.0,
-                                      height: 10.0,
-                                    )
-                                  : IconButton(
-                                      icon: Icon(
-                                        Icons.delete,
-                                      ),
-                                      iconSize: 24.0,
-                                      color: Colors.red,
-                                      onPressed: () {
-                                        setState(() {
-                                          activityProducts.removeAt(index);
-                                        });
-                                      }),
-                            );
-                          },
-                          itemCount: activityProducts.length,
-                          shrinkWrap: true,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 16.0, vertical: 8.0),
-                          child: RaisedButton(
-                            onPressed: widget.activity == null
-                                ? () {
-                                    _addProduct();
-                                  }
-                                : null,
-                            child: Text(
-                              'Tambah Produk',
-                              style: TextStyle(color: Colors.white),
+                              padding: EdgeInsets.only(
+                                  left: 14.0, right: 16.0, top: 16.0),
                             ),
-                            color: Colors.blue,
-                          ),
-                        )
-                      ],
-                    ),
+                            ListView.builder(
+                              itemBuilder: (BuildContext context, int index) {
+                                ActivityProduct product =
+                                    activityProducts[index];
+                                int totalPrice = product.price * product.qty;
+                                return ListTile(
+                                  contentPadding:
+                                      EdgeInsets.only(left: 14.0, right: 14.0),
+                                  title: Text(product.name),
+                                  subtitle: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Text('${product.qty} x ${product.price}'),
+                                      Text(
+                                        'Rp $totalPrice',
+                                        style: TextStyle(
+                                            color: Colors.blue,
+                                            fontSize: 18.0,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    ],
+                                  ),
+                                  trailing: widget.activity != null
+                                      ? Container(
+                                          width: 10.0,
+                                          height: 10.0,
+                                        )
+                                      : IconButton(
+                                          icon: Icon(
+                                            Icons.delete,
+                                          ),
+                                          iconSize: 24.0,
+                                          color: Colors.red,
+                                          onPressed: () {
+                                            setState(() {
+                                              activityProducts.removeAt(index);
+                                            });
+                                          }),
+                                );
+                              },
+                              itemCount: activityProducts.length,
+                              shrinkWrap: true,
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 16.0, vertical: 8.0),
+                              child: RaisedButton(
+                                onPressed: widget.activity == null
+                                    ? () {
+                                        _addProduct();
+                                      }
+                                    : null,
+                                child: Text(
+                                  'Tambah Produk',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                color: Colors.blue,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            )),
+                )),
+          )
+        ],
       ),
     );
   }
 
-  _submitActivity() async {
-    showLoading("Tambah Data. . .");
+  _submitActivity(BuildContext context) async {
+    showLoading(context, "Tambah Data. . .");
+    await Future.delayed(Duration(seconds: 2));
+    print('asdasdsa');
     bool result = await db.createActivity(Activity(
         null,
         supplierSelected.id,
@@ -262,11 +294,12 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
         activityProducts,
         _dateTime.toIso8601String(),
         false));
+    print('result submit $result');
     Navigator.pop(context);
-    if (result) Navigator.pop(context, true);
+    if (result && Navigator.canPop(context)) Navigator.pop(context, true);
   }
 
-  _showDeleteAlertDialog(BuildContext context) {
+  _showDeleteAlertDialog(BuildContext parentContext) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -277,7 +310,7 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
             actions: <Widget>[
               FlatButton(
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.pop(parentContext);
                 },
                 child: Text(
                   'Batal',
@@ -286,13 +319,14 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
               ),
               FlatButton(
                 onPressed: () async {
-                  showLoading("Hapus Data. . .");
+                  Navigator.pop(parentContext);
+                  showLoading(context, "Hapus Data. . .");
+                  await Future.delayed(Duration(seconds: 2));
                   bool result = await db.deleteActivity(widget.activity);
-                  Navigator.pop(context);
-                  if (result) {
-                    Navigator.pop(context);
-                    Navigator.pop(context, true);
-                  }
+                  print('result $result');
+                  Navigator.pop(parentContext);
+                  if (result && Navigator.canPop(parentContext))
+                    Navigator.pop(parentContext, true);
                 },
                 child: Text(
                   'Hapus',
@@ -339,7 +373,7 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
     return '$day-$month-${dateTime.year} $hour:$minute';
   }
 
-  void showLoading(String message) {
+  void showLoading(BuildContext context, String message) {
     showDialog(
         context: context,
         barrierDismissible: false,

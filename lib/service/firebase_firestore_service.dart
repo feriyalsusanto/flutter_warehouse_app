@@ -83,16 +83,9 @@ class FirebaseFirestoreService {
     return snapshots;
   }
 
-  Stream<QuerySnapshot> getActivityList({int offset, int limit}) {
-    Stream<QuerySnapshot> snapshots = activityCollection.snapshots();
-
-    if (offset != null) {
-      snapshots = snapshots.skip(offset);
-    }
-
-    if (limit != null) {
-      snapshots = snapshots.take(limit);
-    }
+  Stream<QuerySnapshot> getActivityList(bool status) {
+    Query query = activityCollection.where('status', isEqualTo: status);
+    Stream<QuerySnapshot> snapshots = query.snapshots();
 
     return snapshots;
   }
@@ -105,7 +98,6 @@ class FirebaseFirestoreService {
     });
 
     await activityCollection.add(activity.toMap()).catchError((e) {
-      print(e.toString());
       success = false;
     });
 

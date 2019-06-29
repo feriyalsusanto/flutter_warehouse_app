@@ -66,6 +66,23 @@ class Activity {
     _product = products;
   }
 
+  Activity.fromOutMap(Map<String, dynamic> map, String id) {
+    _id = id;
+    _date = map['date'];
+    _isOut = map['status'];
+
+    List<ActivityProduct> products = List();
+    (map['product'] as List).map((map) {
+      print(map);
+      products.add(ActivityProduct(
+          id: map["productid"],
+          name: map["productname"],
+          price: map["productprice"],
+          qty: map["productqty"]));
+    }).toList();
+    _product = products;
+  }
+
   List encondeToJson(List<ActivityProduct> list) {
     List jsonList = List();
     list.map((item) => jsonList.add(item.toJson())).toList();

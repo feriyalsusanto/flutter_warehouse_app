@@ -28,23 +28,20 @@ class _ActivityListPageState extends State<ActivityListPage>
   DateTime _minDate;
   DateTime _maxDate;
 
+  ActivityTypeModel selectedModel;
+  List<ActivityTypeModel> models;
+
   @override
   void initState() {
     activities = new List();
     filterActivity = new List();
+    models = List();
 
-    activitySub?.cancel();
-    activitySub = db.getActivityList().listen((QuerySnapshot snapshot) {
-      final List<Activity> activities = snapshot.documents
-          .map((documentSnapshot) => Activity.fromMap(
-              documentSnapshot.data, documentSnapshot.documentID))
-          .toList();
+    models.add(ActivityTypeModel(1, 'Barang Masuk'));
+    models.add(ActivityTypeModel(2, 'Barang Keluar'));
+    selectedModel = models[0];
 
-      setState(() {
-        this.activities = activities;
-        filterActivity = activities;
-      });
-    });
+    getData();
 
     DateTime currentDate = DateTime.now();
     _minDate =
@@ -66,8 +63,10 @@ class _ActivityListPageState extends State<ActivityListPage>
     return Scaffold(
       key: key,
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           Container(
+            color: Colors.white,
             padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
               children: <Widget>[
@@ -94,9 +93,27 @@ class _ActivityListPageState extends State<ActivityListPage>
             ),
           ),
           Container(
-              padding: EdgeInsets.all(8.0),
+            padding: EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
+            color: Colors.white,
+            child: DropdownButton<ActivityTypeModel>(
+              isExpanded: true,
+              items: models.map((model) {
+                return DropdownMenuItem<ActivityTypeModel>(
+                  value: model,
+                  child: Text(model.name),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedModel = value;
+                });
+                getData();
+              },
+              value: selectedModel,
+            ),
+          ),
+          Expanded(
               child: ListView.builder(
-                  shrinkWrap: true,
                   itemBuilder: (context, index) {
                     return showActivity(filterActivity[index]);
                   },
@@ -127,11 +144,13 @@ class _ActivityListPageState extends State<ActivityListPage>
                   parseDateTime(DateTime.parse(activity.date), time: true),
                   style: new TextStyle(fontSize: 14.0, color: Colors.grey),
                 ),
-                new Text(
-                  activity.supplierName,
-                  style: new TextStyle(
-                      fontSize: 16.0, color: Colors.lightBlueAccent),
-                ),
+                activity.supplierName == null
+                    ? Container()
+                    : new Text(
+                        activity.supplierName,
+                        style: new TextStyle(
+                            fontSize: 16.0, color: Colors.lightBlueAccent),
+                      ),
                 new Text(
                   '${activity.product.length} Produk',
                   style: new TextStyle(fontSize: 14.0, color: Colors.grey),
@@ -184,6 +203,42 @@ class _ActivityListPageState extends State<ActivityListPage>
     });
   }
 
+  void getData() {
+    Future.delayed(Duration.zero, () {
+      showLoading();
+    });
+    activitySub?.cancel();
+    if (selectedModel.type == 1) {
+      activitySub = db.getActivityList(false).listen((QuerySnapshot snapshot) {
+        final List<Activity> activities = snapshot.documents
+            .map((documentSnapshot) => Activity.fromMap(
+                documentSnapshot.data, documentSnapshot.documentID))
+            .toList();
+
+        Navigator.pop(context);
+
+        setState(() {
+          this.activities = activities;
+          filterActivity = activities;
+        });
+      });
+    } else {
+      activitySub = db.getActivityList(true).listen((QuerySnapshot snapshot) {
+        final List<Activity> activities = snapshot.documents
+            .map((documentSnapshot) => Activity.fromOutMap(
+                documentSnapshot.data, documentSnapshot.documentID))
+            .toList();
+
+        Navigator.pop(context);
+
+        setState(() {
+          this.activities = activities;
+          filterActivity = activities;
+        });
+      });
+    }
+  }
+
   String parseDateTime(DateTime dateTime, {bool time = false}) {
     String day = dateTime.day.toString();
     if (dateTime.day < 10) day = '0${dateTime.day}';
@@ -232,5 +287,17 @@ class _ActivityListPageState extends State<ActivityListPage>
             ),
           );
         });
+  }
+}
+
+class ActivityTypeModel {
+  int type;
+  String name;
+
+  ActivityTypeModel(this.type, this.name);
+
+  @override
+  String toString() {
+    return 'ActivityTypeModel{type: $type, name: $name}';
   }
 }
