@@ -116,172 +116,174 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
           )
         ],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Container(
-            padding: EdgeInsets.all(8.0),
-            child: Form(
-                key: formKey,
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: <Widget>[
-                      InkWell(
-                        child: Card(
-                          child: TextFormField(
-                            controller: dateController,
-                            enabled: false,
-                            keyboardType: TextInputType.text,
-                            decoration: InputDecoration(
-                                labelText: 'Tanggal',
-                                contentPadding: EdgeInsets.all(12.0),
-                                enabledBorder: UnderlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Colors.transparent))),
-                            validator: (val) =>
-                                val.isEmpty ? 'Silahkan Pilih Tanggal' : null,
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Container(
+              padding: EdgeInsets.all(8.0),
+              child: Form(
+                  key: formKey,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: <Widget>[
+                        InkWell(
+                          child: Card(
+                            child: TextFormField(
+                              controller: dateController,
+                              enabled: false,
+                              keyboardType: TextInputType.text,
+                              decoration: InputDecoration(
+                                  labelText: 'Tanggal',
+                                  contentPadding: EdgeInsets.all(12.0),
+                                  enabledBorder: UnderlineInputBorder(
+                                      borderSide:
+                                      BorderSide(color: Colors.transparent))),
+                              validator: (val) =>
+                              val.isEmpty ? 'Silahkan Pilih Tanggal' : null,
+                            ),
                           ),
-                        ),
-                        onTap: widget.activity != null
-                            ? null
-                            : () {
-                                DatePicker.showDateTimePicker(context,
-                                    currentTime: _dateTime,
-                                    onConfirm: (dateTime) {
+                          onTap: widget.activity != null
+                              ? null
+                              : () {
+                            DatePicker.showDateTimePicker(context,
+                                currentTime: _dateTime,
+                                onConfirm: (dateTime) {
                                   setState(() {
                                     _dateTime = dateTime;
                                     dateController.text =
                                         parseDateTime(_dateTime);
                                   });
                                 });
-                              },
-                      ),
-                      (widget.activity != null && widget.activity.isOut) ||
-                              widget.type == 2
-                          ? Container()
-                          : widget.activity == null
-                              ? Card(
-                                  child: DropdownButtonFormField<Supplier>(
-                                    decoration: InputDecoration(
-                                        labelText: 'Supplier',
-                                        contentPadding: EdgeInsets.symmetric(
-                                            horizontal: 12.0, vertical: 8.0),
-                                        enabledBorder: UnderlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.transparent))),
-                                    items: List.generate(suppliers.length,
-                                        (index) {
-                                      Supplier supplier = suppliers[index];
-                                      return DropdownMenuItem(
-                                        value: supplier,
-                                        child: Text(
-                                          supplier.name,
-                                        ),
-                                      );
-                                    }),
-                                    onChanged: (supplier) => setState(
-                                        () => supplierSelected = supplier),
-                                    value: supplierSelected,
-                                    validator: (val) => supplierSelected == null
-                                        ? 'Silahkan Pilih Supplier'
-                                        : null,
-                                  ),
-                                )
-                              : Card(
-                                  child: TextFormField(
-                                    controller: TextEditingController(
-                                        text: widget.activity.supplierName),
-                                    enabled: false,
-                                    keyboardType: TextInputType.text,
-                                    decoration: InputDecoration(
-                                        labelText: 'Supplier',
-                                        contentPadding: EdgeInsets.all(12.0),
-                                        enabledBorder: UnderlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.transparent))),
-                                  ),
-                                ),
-                      Card(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: <Widget>[
-                            Container(
-                              child: Text(
-                                'Daftar Produk',
-                                style: TextStyle(
-                                    fontSize: 13.0, color: Colors.grey),
-                              ),
-                              padding: EdgeInsets.only(
-                                  left: 14.0, right: 16.0, top: 16.0),
-                            ),
-                            ListView.builder(
-                              itemBuilder: (BuildContext context, int index) {
-                                ActivityProduct product =
-                                    activityProducts[index];
-                                int totalPrice = product.price * product.qty;
-                                return ListTile(
-                                  contentPadding:
-                                      EdgeInsets.only(left: 14.0, right: 14.0),
-                                  title: Text(product.name),
-                                  subtitle: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: <Widget>[
-                                      Text('${product.qty} x ${product.price}'),
-                                      Text(
-                                        'Rp $totalPrice',
-                                        style: TextStyle(
-                                            color: Colors.blue,
-                                            fontSize: 18.0,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                    ],
-                                  ),
-                                  trailing: widget.activity != null
-                                      ? Container(
-                                          width: 10.0,
-                                          height: 10.0,
-                                        )
-                                      : IconButton(
-                                          icon: Icon(
-                                            Icons.delete,
-                                          ),
-                                          iconSize: 24.0,
-                                          color: Colors.red,
-                                          onPressed: () {
-                                            setState(() {
-                                              activityProducts.removeAt(index);
-                                            });
-                                          }),
-                                );
-                              },
-                              itemCount: activityProducts.length,
-                              shrinkWrap: true,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 16.0, vertical: 8.0),
-                              child: RaisedButton(
-                                onPressed: widget.activity == null
-                                    ? () {
-                                        _addProduct();
-                                      }
-                                    : null,
-                                child: Text(
-                                  'Tambah Produk',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                color: Colors.blue,
-                              ),
-                            )
-                          ],
+                          },
                         ),
-                      ),
-                    ],
-                  ),
-                )),
-          )
-        ],
+                        (widget.activity != null && widget.activity.isOut) ||
+                            widget.type == 2
+                            ? Container()
+                            : widget.activity == null
+                            ? Card(
+                          child: DropdownButtonFormField<Supplier>(
+                            decoration: InputDecoration(
+                                labelText: 'Supplier',
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12.0, vertical: 8.0),
+                                enabledBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.transparent))),
+                            items: List.generate(suppliers.length,
+                                    (index) {
+                                  Supplier supplier = suppliers[index];
+                                  return DropdownMenuItem(
+                                    value: supplier,
+                                    child: Text(
+                                      supplier.name,
+                                    ),
+                                  );
+                                }),
+                            onChanged: (supplier) => setState(
+                                    () => supplierSelected = supplier),
+                            value: supplierSelected,
+                            validator: (val) => supplierSelected == null
+                                ? 'Silahkan Pilih Supplier'
+                                : null,
+                          ),
+                        )
+                            : Card(
+                          child: TextFormField(
+                            controller: TextEditingController(
+                                text: widget.activity.supplierName),
+                            enabled: false,
+                            keyboardType: TextInputType.text,
+                            decoration: InputDecoration(
+                                labelText: 'Supplier',
+                                contentPadding: EdgeInsets.all(12.0),
+                                enabledBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.transparent))),
+                          ),
+                        ),
+                        Card(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: <Widget>[
+                              Container(
+                                child: Text(
+                                  'Daftar Produk',
+                                  style: TextStyle(
+                                      fontSize: 13.0, color: Colors.grey),
+                                ),
+                                padding: EdgeInsets.only(
+                                    left: 14.0, right: 16.0, top: 16.0),
+                              ),
+                              ListView.builder(
+                                itemBuilder: (BuildContext context, int index) {
+                                  ActivityProduct product =
+                                  activityProducts[index];
+                                  int totalPrice = product.price * product.qty;
+                                  return ListTile(
+                                    contentPadding:
+                                    EdgeInsets.only(left: 14.0, right: 14.0),
+                                    title: Text(product.name),
+                                    subtitle: Row(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        Text('${product.qty} x ${product.price}'),
+                                        Text(
+                                          'Rp $totalPrice',
+                                          style: TextStyle(
+                                              color: Colors.blue,
+                                              fontSize: 18.0,
+                                              fontWeight: FontWeight.w600),
+                                        ),
+                                      ],
+                                    ),
+                                    trailing: widget.activity != null
+                                        ? Container(
+                                      width: 10.0,
+                                      height: 10.0,
+                                    )
+                                        : IconButton(
+                                        icon: Icon(
+                                          Icons.delete,
+                                        ),
+                                        iconSize: 24.0,
+                                        color: Colors.red,
+                                        onPressed: () {
+                                          setState(() {
+                                            activityProducts.removeAt(index);
+                                          });
+                                        }),
+                                  );
+                                },
+                                itemCount: activityProducts.length,
+                                shrinkWrap: true,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 16.0, vertical: 8.0),
+                                child: RaisedButton(
+                                  onPressed: widget.activity == null
+                                      ? () {
+                                    _addProduct();
+                                  }
+                                      : null,
+                                  child: Text(
+                                    'Tambah Produk',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  color: Colors.blue,
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -360,13 +362,19 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
       if (activityProducts.length == 0)
         activityProducts.add(ActivityProduct.fromMap(result));
       else {
+        bool exist = false;
         for (int x = 0; x < activityProducts.length; x++) {
           ActivityProduct product = activityProducts[x];
           if (product.id == result['product_id']) {
+            exist = true;
             int qty = product.qty + int.parse(result['product_qty']);
             activityProducts[x].qty = qty;
             break;
           }
+        }
+
+        if (!exist) {
+          activityProducts.add(ActivityProduct.fromMap(result));
         }
       }
     }
