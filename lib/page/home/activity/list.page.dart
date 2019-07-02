@@ -123,7 +123,9 @@ class _ActivityListPageState extends State<ActivityListPage>
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return ActivityDetailPage();
+            return ActivityDetailPage(
+              type: selectedModel.type,
+            );
           }));
 
           setState(() {});
@@ -204,9 +206,6 @@ class _ActivityListPageState extends State<ActivityListPage>
   }
 
   void getData() {
-    Future.delayed(Duration.zero, () {
-      showLoading();
-    });
     activitySub?.cancel();
     if (selectedModel.type == 1) {
       activitySub = db.getActivityList(false).listen((QuerySnapshot snapshot) {
@@ -214,8 +213,6 @@ class _ActivityListPageState extends State<ActivityListPage>
             .map((documentSnapshot) => Activity.fromMap(
                 documentSnapshot.data, documentSnapshot.documentID))
             .toList();
-
-        Navigator.pop(context);
 
         setState(() {
           this.activities = activities;
@@ -228,8 +225,6 @@ class _ActivityListPageState extends State<ActivityListPage>
             .map((documentSnapshot) => Activity.fromOutMap(
                 documentSnapshot.data, documentSnapshot.documentID))
             .toList();
-
-        Navigator.pop(context);
 
         setState(() {
           this.activities = activities;

@@ -12,8 +12,9 @@ import 'addproduct.page.dart';
 
 class ActivityDetailPage extends StatefulWidget {
   final Activity activity;
+  final int type;
 
-  ActivityDetailPage({this.activity});
+  ActivityDetailPage({this.activity, this.type = 1});
 
   @override
   _ActivityDetailPageState createState() {
@@ -97,7 +98,8 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.activity != null && widget.activity.isOut
+        title: Text((widget.activity != null && widget.activity.isOut) ||
+                widget.type == 2
             ? 'Detil Barang Keluar'
             : 'Detil Barang Masuk'),
         actions: <Widget>[
@@ -154,7 +156,8 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
                                 });
                               },
                       ),
-                      widget.activity != null && widget.activity.isOut
+                      (widget.activity != null && widget.activity.isOut) ||
+                              widget.type == 2
                           ? Container()
                           : widget.activity == null
                               ? Card(
@@ -286,17 +289,27 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
   _submitActivity(BuildContext context) async {
     showLoading(context, "Tambah Data. . .");
     await Future.delayed(Duration(seconds: 2));
-    print('asdasdsa');
-    bool result = await db.createActivity(Activity(
-        null,
-        supplierSelected.id,
-        supplierSelected.name,
-        activityProducts,
-        _dateTime.toIso8601String(),
-        false));
-    print('result submit $result');
-    Navigator.pop(context);
-    if (result && Navigator.canPop(context)) Navigator.pop(context, true);
+    if (widget.type == 1) {
+      bool result = await db.createActivity(Activity(
+          null,
+          supplierSelected.id,
+          supplierSelected.name,
+          activityProducts,
+          _dateTime.toIso8601String(),
+          false));
+      Navigator.pop(context);
+      if (result && Navigator.canPop(context)) Navigator.pop(context, true);
+    } else {
+      bool result = await db.createActivity(Activity(
+          null,
+          '',
+          '',
+          activityProducts,
+          _dateTime.toIso8601String(),
+          true));
+      Navigator.pop(context);
+      if (result && Navigator.canPop(context)) Navigator.pop(context, true);
+    }
   }
 
   _showDeleteAlertDialog(BuildContext parentContext) {
@@ -343,15 +356,17 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
         await Navigator.push(context, MaterialPageRoute(builder: (context) {
       return AddProductPage(products);
     }));
-    if (activityProducts.length == 0)
-      activityProducts.add(ActivityProduct.fromMap(result));
-    else {
-      for (int x = 0; x < activityProducts.length; x++) {
-        ActivityProduct product = activityProducts[x];
-        if (product.id == result['product_id']) {
-          int qty = product.qty + int.parse(result['product_qty']);
-          activityProducts[x].qty = qty;
-          break;
+    if (result != null) {
+      if (activityProducts.length == 0)
+        activityProducts.add(ActivityProduct.fromMap(result));
+      else {
+        for (int x = 0; x < activityProducts.length; x++) {
+          ActivityProduct product = activityProducts[x];
+          if (product.id == result['product_id']) {
+            int qty = product.qty + int.parse(result['product_qty']);
+            activityProducts[x].qty = qty;
+            break;
+          }
         }
       }
     }

@@ -94,7 +94,7 @@ class FirebaseFirestoreService {
     bool success = true;
 
     activity.product.forEach((product) async {
-      await updateStock(product);
+      await updateStock(product, isDelete: activity.isOut);
     });
 
     await activityCollection.add(activity.toMap()).catchError((e) {
