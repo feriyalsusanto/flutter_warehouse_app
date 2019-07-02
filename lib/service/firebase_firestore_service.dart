@@ -104,11 +104,16 @@ class FirebaseFirestoreService {
     return success;
   }
 
-  Future<bool> deleteActivity(Activity activity) async {
+  Future<bool> deleteActivity(Activity activity, int type) async {
     bool success = true;
 
+    print('type $type');
+
     activity.product.forEach((product) async {
-      await updateStock(product, isDelete: true);
+      if (type == 1)
+        await updateStock(product, isDelete: true);
+      else
+        await updateStock(product, isDelete: false);
     });
 
     await activityCollection.document(activity.id).delete().catchError((error) {

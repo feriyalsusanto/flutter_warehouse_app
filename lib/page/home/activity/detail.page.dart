@@ -137,71 +137,72 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
                                   labelText: 'Tanggal',
                                   contentPadding: EdgeInsets.all(12.0),
                                   enabledBorder: UnderlineInputBorder(
-                                      borderSide:
-                                      BorderSide(color: Colors.transparent))),
+                                      borderSide: BorderSide(
+                                          color: Colors.transparent))),
                               validator: (val) =>
-                              val.isEmpty ? 'Silahkan Pilih Tanggal' : null,
+                                  val.isEmpty ? 'Silahkan Pilih Tanggal' : null,
                             ),
                           ),
                           onTap: widget.activity != null
                               ? null
                               : () {
-                            DatePicker.showDateTimePicker(context,
-                                currentTime: _dateTime,
-                                onConfirm: (dateTime) {
-                                  setState(() {
-                                    _dateTime = dateTime;
-                                    dateController.text =
-                                        parseDateTime(_dateTime);
+                                  DatePicker.showDateTimePicker(context,
+                                      currentTime: _dateTime,
+                                      onConfirm: (dateTime) {
+                                    setState(() {
+                                      _dateTime = dateTime;
+                                      dateController.text =
+                                          parseDateTime(_dateTime);
+                                    });
                                   });
-                                });
-                          },
+                                },
                         ),
                         (widget.activity != null && widget.activity.isOut) ||
-                            widget.type == 2
+                                widget.type == 2
                             ? Container()
                             : widget.activity == null
-                            ? Card(
-                          child: DropdownButtonFormField<Supplier>(
-                            decoration: InputDecoration(
-                                labelText: 'Supplier',
-                                contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 12.0, vertical: 8.0),
-                                enabledBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Colors.transparent))),
-                            items: List.generate(suppliers.length,
-                                    (index) {
-                                  Supplier supplier = suppliers[index];
-                                  return DropdownMenuItem(
-                                    value: supplier,
-                                    child: Text(
-                                      supplier.name,
+                                ? Card(
+                                    child: DropdownButtonFormField<Supplier>(
+                                      decoration: InputDecoration(
+                                          labelText: 'Supplier',
+                                          contentPadding: EdgeInsets.symmetric(
+                                              horizontal: 12.0, vertical: 8.0),
+                                          enabledBorder: UnderlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.transparent))),
+                                      items: List.generate(suppliers.length,
+                                          (index) {
+                                        Supplier supplier = suppliers[index];
+                                        return DropdownMenuItem(
+                                          value: supplier,
+                                          child: Text(
+                                            supplier.name,
+                                          ),
+                                        );
+                                      }),
+                                      onChanged: (supplier) => setState(
+                                          () => supplierSelected = supplier),
+                                      value: supplierSelected,
+                                      validator: (val) =>
+                                          supplierSelected == null
+                                              ? 'Silahkan Pilih Supplier'
+                                              : null,
                                     ),
-                                  );
-                                }),
-                            onChanged: (supplier) => setState(
-                                    () => supplierSelected = supplier),
-                            value: supplierSelected,
-                            validator: (val) => supplierSelected == null
-                                ? 'Silahkan Pilih Supplier'
-                                : null,
-                          ),
-                        )
-                            : Card(
-                          child: TextFormField(
-                            controller: TextEditingController(
-                                text: widget.activity.supplierName),
-                            enabled: false,
-                            keyboardType: TextInputType.text,
-                            decoration: InputDecoration(
-                                labelText: 'Supplier',
-                                contentPadding: EdgeInsets.all(12.0),
-                                enabledBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Colors.transparent))),
-                          ),
-                        ),
+                                  )
+                                : Card(
+                                    child: TextFormField(
+                                      controller: TextEditingController(
+                                          text: widget.activity.supplierName),
+                                      enabled: false,
+                                      keyboardType: TextInputType.text,
+                                      decoration: InputDecoration(
+                                          labelText: 'Supplier',
+                                          contentPadding: EdgeInsets.all(12.0),
+                                          enabledBorder: UnderlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.transparent))),
+                                    ),
+                                  ),
                         Card(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -218,17 +219,18 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
                               ListView.builder(
                                 itemBuilder: (BuildContext context, int index) {
                                   ActivityProduct product =
-                                  activityProducts[index];
+                                      activityProducts[index];
                                   int totalPrice = product.price * product.qty;
                                   return ListTile(
-                                    contentPadding:
-                                    EdgeInsets.only(left: 14.0, right: 14.0),
+                                    contentPadding: EdgeInsets.only(
+                                        left: 14.0, right: 14.0),
                                     title: Text(product.name),
                                     subtitle: Row(
                                       mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                          MainAxisAlignment.spaceBetween,
                                       children: <Widget>[
-                                        Text('${product.qty} x ${product.price}'),
+                                        Text(
+                                            '${product.qty} x ${product.price}'),
                                         Text(
                                           'Rp $totalPrice',
                                           style: TextStyle(
@@ -240,20 +242,21 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
                                     ),
                                     trailing: widget.activity != null
                                         ? Container(
-                                      width: 10.0,
-                                      height: 10.0,
-                                    )
+                                            width: 10.0,
+                                            height: 10.0,
+                                          )
                                         : IconButton(
-                                        icon: Icon(
-                                          Icons.delete,
-                                        ),
-                                        iconSize: 24.0,
-                                        color: Colors.red,
-                                        onPressed: () {
-                                          setState(() {
-                                            activityProducts.removeAt(index);
-                                          });
-                                        }),
+                                            icon: Icon(
+                                              Icons.delete,
+                                            ),
+                                            iconSize: 24.0,
+                                            color: Colors.red,
+                                            onPressed: () {
+                                              setState(() {
+                                                activityProducts
+                                                    .removeAt(index);
+                                              });
+                                            }),
                                   );
                                 },
                                 itemCount: activityProducts.length,
@@ -265,8 +268,8 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
                                 child: RaisedButton(
                                   onPressed: widget.activity == null
                                       ? () {
-                                    _addProduct();
-                                  }
+                                          _addProduct();
+                                        }
                                       : null,
                                   child: Text(
                                     'Tambah Produk',
@@ -303,12 +306,7 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
       if (result && Navigator.canPop(context)) Navigator.pop(context, true);
     } else {
       bool result = await db.createActivity(Activity(
-          null,
-          '',
-          '',
-          activityProducts,
-          _dateTime.toIso8601String(),
-          true));
+          null, '', '', activityProducts, _dateTime.toIso8601String(), true));
       Navigator.pop(context);
       if (result && Navigator.canPop(context)) Navigator.pop(context, true);
     }
@@ -337,7 +335,7 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
                   Navigator.pop(parentContext);
                   showLoading(context, "Hapus Data. . .");
                   await Future.delayed(Duration(seconds: 2));
-                  bool result = await db.deleteActivity(widget.activity);
+                  bool result = await db.deleteActivity(widget.activity, widget.type);
                   print('result $result');
                   Navigator.pop(parentContext);
                   if (result && Navigator.canPop(parentContext))

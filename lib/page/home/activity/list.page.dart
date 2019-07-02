@@ -165,6 +165,7 @@ class _ActivityListPageState extends State<ActivityListPage>
         await Navigator.push(context, MaterialPageRoute(builder: (context) {
           return ActivityDetailPage(
             activity: activity,
+            type: selectedModel.type,
           );
         }));
 

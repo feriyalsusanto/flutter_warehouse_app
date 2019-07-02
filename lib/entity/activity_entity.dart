@@ -73,12 +73,12 @@ class Activity {
 
     List<ActivityProduct> products = List();
     (map['product'] as List).map((map) {
-      print(map);
+      Map<dynamic, dynamic> json = map;
       products.add(ActivityProduct(
-          id: map["productid"],
-          name: map["productname"],
-          price: map["productprice"],
-          qty: map["productqty"]));
+          id: json['productid'] == null ? json['product_id'] : json['productid'],
+          name: json["productname"] == null ? json["product_name"] : json["productname"],
+          price: json["productprice"] == null ? json["product_price"] : json["productprice"],
+          qty: json["productqty"] == null ? json["product_qty"] : json["productqty"]));
     }).toList();
     _product = products;
   }
