@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:pina_warehouse/entity/activity_entity.dart';
 import 'package:pina_warehouse/entity/product_entity.dart';
+import 'package:pina_warehouse/entity/stock_entity.dart';
 import 'package:pina_warehouse/entity/supplier_entity.dart';
 import 'package:pina_warehouse/service/firebase_firestore_service.dart';
 
@@ -23,11 +24,15 @@ class ActivityDetailPage extends StatefulWidget {
 }
 
 class _ActivityDetailPageState extends State<ActivityDetailPage> {
+  GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey();
   GlobalKey<FormState> formKey = new GlobalKey();
   FirebaseFirestoreService db = new FirebaseFirestoreService();
 
   List<Product> products;
   StreamSubscription<QuerySnapshot> productSub;
+
+  List<Stock> stocks;
+  StreamSubscription<QuerySnapshot> stockSub;
 
   List<Supplier> suppliers;
   StreamSubscription<QuerySnapshot> supplierSub;
@@ -65,6 +70,19 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
       });
     });
 
+    stocks = new List();
+    stockSub?.cancel();
+    stockSub = db.getStockList().listen((QuerySnapshot snapshot) {
+      final List<Stock> stocks = snapshot.documents
+          .map((documentSnapshot) =>
+              Stock.fromMap(documentSnapshot.data, documentSnapshot.documentID))
+          .toList();
+
+      setState(() {
+        this.stocks = stocks;
+      });
+    });
+
     suppliers = new List();
     supplierSub?.cancel();
     supplierSub = db.getSupplierList().listen((QuerySnapshot snapshot) {
@@ -97,11 +115,12 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
         title: Text((widget.activity != null && widget.activity.isOut) ||
                 widget.type == 2
-            ? 'Detil Barang Keluar'
-            : 'Detil Barang Masuk'),
+            ? 'Detail Barang Keluar'
+            : 'Detail Barang Masuk'),
         actions: <Widget>[
           IconButton(
             icon: Icon(isDeletable ? Icons.delete_forever : Icons.check),
@@ -292,23 +311,44 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
   }
 
   _submitActivity(BuildContext context) async {
-    showLoading(context, "Tambah Data. . .");
-    await Future.delayed(Duration(seconds: 2));
-    if (widget.type == 1) {
-      bool result = await db.createActivity(Activity(
-          null,
-          supplierSelected.id,
-          supplierSelected.name,
-          activityProducts,
-          _dateTime.toIso8601String(),
-          false));
-      Navigator.pop(context);
-      if (result && Navigator.canPop(context)) Navigator.pop(context, true);
+    String name = '';
+    bool isMinus = false;
+    activityProducts.forEach((product) {
+      stocks.forEach((stock) {
+        if (product.id == stock.id) {
+          if ((stock.qty - product.qty) < 0) {
+            name = product.name;
+            isMinus = true;
+          }
+        }
+      });
+    });
+
+    if (!isMinus) {
+      print('sukses');
+//      showLoading(context, "Tambah Data. . .");
+//      await Future.delayed(Duration(seconds: 2));
+//      if (widget.type == 1) {
+//        bool result = await db.createActivity(Activity(
+//            null,
+//            supplierSelected.id,
+//            supplierSelected.name,
+//            activityProducts,
+//            _dateTime.toIso8601String(),
+//            false));
+//        Navigator.pop(context);
+//        if (result && Navigator.canPop(context)) Navigator.pop(context, true);
+//      } else {
+//        bool result = await db.createActivity(Activity(
+//            null, '', '', activityProducts, _dateTime.toIso8601String(), true));
+//        Navigator.pop(context);
+//        if (result && Navigator.canPop(context)) Navigator.pop(context, true);
+//      }
     } else {
-      bool result = await db.createActivity(Activity(
-          null, '', '', activityProducts, _dateTime.toIso8601String(), true));
-      Navigator.pop(context);
-      if (result && Navigator.canPop(context)) Navigator.pop(context, true);
+      scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Text('Stok produk $name minus, tidak dapat memperbarui.'),
+        backgroundColor: Colors.red,
+      ));
     }
   }
 
@@ -335,7 +375,8 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
                   Navigator.pop(parentContext);
                   showLoading(context, "Hapus Data. . .");
                   await Future.delayed(Duration(seconds: 2));
-                  bool result = await db.deleteActivity(widget.activity, widget.type);
+                  bool result =
+                      await db.deleteActivity(widget.activity, widget.type);
                   print('result $result');
                   Navigator.pop(parentContext);
                   if (result && Navigator.canPop(parentContext))

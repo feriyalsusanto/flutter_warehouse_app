@@ -73,7 +73,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Detil Produk'),
+        title: Text('Detail Produk'),
         actions: <Widget>[
           IconButton(
             icon: Icon(!isEditing ? Icons.edit : Icons.check),

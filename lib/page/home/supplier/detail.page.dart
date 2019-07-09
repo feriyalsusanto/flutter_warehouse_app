@@ -36,7 +36,7 @@ class _SupplierDetailPageState extends State<SupplierDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Detil Supplier'),
+        title: Text('Detail Supplier'),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.check),

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:pina_warehouse/entity/product_entity.dart';
 
 class AddProductPage extends StatefulWidget {
-  List<Product> products;
-  Product product;
+  final List<Product> products;
+  final Product product;
 
   AddProductPage(this.products, {this.product});
 
