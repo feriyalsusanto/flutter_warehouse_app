@@ -325,25 +325,24 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
     });
 
     if (!isMinus) {
-      print('sukses');
-//      showLoading(context, "Tambah Data. . .");
-//      await Future.delayed(Duration(seconds: 2));
-//      if (widget.type == 1) {
-//        bool result = await db.createActivity(Activity(
-//            null,
-//            supplierSelected.id,
-//            supplierSelected.name,
-//            activityProducts,
-//            _dateTime.toIso8601String(),
-//            false));
-//        Navigator.pop(context);
-//        if (result && Navigator.canPop(context)) Navigator.pop(context, true);
-//      } else {
-//        bool result = await db.createActivity(Activity(
-//            null, '', '', activityProducts, _dateTime.toIso8601String(), true));
-//        Navigator.pop(context);
-//        if (result && Navigator.canPop(context)) Navigator.pop(context, true);
-//      }
+      showLoading(context, "Tambah Data. . .");
+      await Future.delayed(Duration(seconds: 2));
+      if (widget.type == 1) {
+        bool result = await db.createActivity(Activity(
+            null,
+            supplierSelected.id,
+            supplierSelected.name,
+            activityProducts,
+            _dateTime.toIso8601String(),
+            false));
+        Navigator.pop(context);
+        if (result && Navigator.canPop(context)) Navigator.pop(context, true);
+      } else {
+        bool result = await db.createActivity(Activity(
+            null, '', '', activityProducts, _dateTime.toIso8601String(), true));
+        Navigator.pop(context);
+        if (result && Navigator.canPop(context)) Navigator.pop(context, true);
+      }
     } else {
       scaffoldKey.currentState.showSnackBar(SnackBar(
         content: Text('Stok produk $name minus, tidak dapat memperbarui.'),
